@@ -1,4 +1,5 @@
 package com.scrapyard.management.Models;
+import com.scrapyard.management.Models.Enums.TypeMetal;
 import com.scrapyard.management.Models.Enums.UnitOfMeasure;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class InvoiceDetail {
     // Type of metal purchased
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Container.TypeMetal metalType;
+    private TypeMetal metalType;
 
     //Unit of measure
     @Enumerated(EnumType.STRING)

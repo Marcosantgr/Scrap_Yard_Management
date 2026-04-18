@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.List;
 
 
@@ -44,7 +43,8 @@ public class ScrapYard {
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Invoice> invoices;
 
-
+    @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ManagerSY> managers;
 
 
 
