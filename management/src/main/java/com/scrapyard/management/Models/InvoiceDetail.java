@@ -47,7 +47,7 @@ public class InvoiceDetail {
     @Column(nullable = false)
     private BigDecimal subtotal;
 
-    //Properly Container
+    //Container
     @ManyToOne
     @JoinColumn(name = "container_id")
     private Container container;
