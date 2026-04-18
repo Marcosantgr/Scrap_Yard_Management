@@ -1,5 +1,5 @@
 package com.scrapyard.management.Models;
-import com.scrapyard.management.Models.Enums.TypeMetal;
+import com.scrapyard.management.Models.Enums.MaterialType;
 import com.scrapyard.management.Models.Enums.UnitOfMeasure;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,11 +29,9 @@ public class Container {
     @Column(nullable = false)
     private BigDecimal currentWeight = BigDecimal.ZERO;
 
-    private Double capacity;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TypeMetal metalType;
+    private MaterialType materialType;
 
     @ManyToOne
     @JoinColumn(name = "scrapyard_id", nullable = false)
@@ -42,8 +41,11 @@ public class Container {
     @Column(nullable = false)
     private UnitOfMeasure stockUnit = UnitOfMeasure.KILOGRAMS;
 
+    @OneToMany(mappedBy = "defaultContainer")
+    private List<Invoice> invoices;
 
-
+    @OneToMany(mappedBy = "container")
+    private List<InvoiceDetail> invoiceDetails;
 
 
 

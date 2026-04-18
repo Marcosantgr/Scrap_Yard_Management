@@ -1,6 +1,6 @@
 package com.scrapyard.management.Models.Enums;
 
-public enum TypeMetal {
+public enum MaterialType {
 
     ALUMINIUM,
     IRON,

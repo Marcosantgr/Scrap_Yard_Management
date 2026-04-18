@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,10 +40,16 @@ public class Invoice {
 
     // Invoice totals
     @Column(nullable = false)
-    private BigDecimal totalAmountPaid;
+    private Double totalPaid;
 
+    // Invoice discount
     @Column(nullable = false)
-    private BigDecimal Discount;
+    private Double Discount;
+
+    //Default Container for 1 single invoice with 1 single invoiceDetail
+    @ManyToOne
+    @JoinColumn(name = "default_container_id")
+    private Container defaultContainer;
 
 
 

@@ -38,6 +38,10 @@ public class Customer {
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Invoice> invoices;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+
 
 
 
