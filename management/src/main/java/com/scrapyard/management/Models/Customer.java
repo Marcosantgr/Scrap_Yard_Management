@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,7 +38,7 @@ public class Customer {
     private CustomerType typeCustomer;
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Invoice> invoices;
+    private List<Invoice> invoices=new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "company_id")

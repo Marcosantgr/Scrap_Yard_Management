@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -37,13 +39,13 @@ public class ScrapYard {
     private Company company;
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Container> containers;
+    private List<Container> containers=new ArrayList<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Invoice> invoices;
+    private List<Invoice> invoices=new ArrayList<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ManagerSY> managers;
+    private List<ManagerSY> managers=new ArrayList<>();
 
 
 

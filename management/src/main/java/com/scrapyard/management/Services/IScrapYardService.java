@@ -18,11 +18,4 @@ public interface IScrapYardService {
 
 
 
-
-
-
-
-
-
-
 }

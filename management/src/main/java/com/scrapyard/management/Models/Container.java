@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -42,10 +43,10 @@ public class Container {
     private UnitOfMeasure stockUnit = UnitOfMeasure.KILOGRAMS;
 
     @OneToMany(mappedBy = "defaultContainer")
-    private List<Invoice> invoices;
+    private List<Invoice> invoices=new ArrayList<>();
 
     @OneToMany(mappedBy = "container")
-    private List<InvoiceDetail> invoiceDetails;
+    private List<InvoiceDetail> invoiceDetails=new ArrayList<>();
 
 
 
