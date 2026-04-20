@@ -1,11 +1,9 @@
 package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
-import com.scrapyard.management.DTO.Response.CompanyDTO.CompanyDTOResponse;
 import com.scrapyard.management.Services.Impl.CompanyServImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -60,17 +58,21 @@ public class CompanyController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable Long id,
+            @RequestBody CompanyDTORequestInsert company) {
+        try {
+            return ResponseEntity.ok(companyServices.updateCompany(company, id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        return companyServices.deleteCompany(id);
+    }
 
 }

@@ -7,7 +7,6 @@ import com.scrapyard.management.Services.ICompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CompanyServImpl implements ICompanyService {
@@ -47,8 +46,6 @@ public class CompanyServImpl implements ICompanyService {
         return new CompanyDTOResponse(comp.getId(), comp.getName(), comp.getLocation());
     }
 
-
-
     @Override
     public CompanyDTOResponse saveCompany(CompanyDTORequestInsert company) {
 
@@ -66,12 +63,38 @@ public class CompanyServImpl implements ICompanyService {
     }
 
     @Override
-    public Company updateCompany(Company company, Long id) {
-        return null;
+    public CompanyDTOResponse updateCompany(CompanyDTORequestInsert company, Long id) {
+
+        Company existing = companyRepo.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("The company does not exist"));
+
+        if (company.getName().isBlank() || company.getLocation().isBlank()) {
+            throw new IllegalArgumentException("There cannot be blank fields");
+        }
+
+        existing.setName(company.getName());
+        existing.setLocation(company.getLocation());
+
+        Company savedCompany = companyRepo.save(existing);
+
+        return new CompanyDTOResponse(savedCompany.getId(),
+                                      savedCompany.getName(),
+                                      savedCompany.getLocation());
+
     }
 
     @Override
-    public void deleteCompany(Long id) {
+    public String deleteCompany(Long id) {
+        if (companyRepo.existsById(id)) {
+            companyRepo.deleteById(id);
+            return "Company successfully removed";
+        }else {
+            return "Company does not exist";
+        }
+    }
+
+
+
 
     }
-}
+
