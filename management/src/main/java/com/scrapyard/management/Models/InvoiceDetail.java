@@ -21,7 +21,7 @@ public class InvoiceDetail {
     private Long id;
 
     // Relationship with invoice
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 
@@ -43,15 +43,17 @@ public class InvoiceDetail {
     @Column(nullable = false)
     private BigDecimal unitPrice;
 
-    // Subtotal (weight * unitPrice)
-    @Column(nullable = false)
-    private BigDecimal subtotal;
-
     //Container
-    @ManyToOne
-    @JoinColumn(name = "container_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "container_id",nullable = false)
     private Container container;
 
-
+    @Transient
+    public BigDecimal getSubtotal() {
+        if (weight == null || unitPrice == null) {
+            return BigDecimal.ZERO;
+        }
+        return unitPrice.multiply(weight);
+    }
 
 }

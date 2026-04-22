@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,17 +42,15 @@ public class Invoice {
 
     // Invoice totals
     @Column(nullable = false)
-    private Double totalPaid;
+    private BigDecimal totalPaid;
 
     // Invoice discount
-    @Column(nullable = false)
-    private Double Discount;
+    @Column
+    private BigDecimal  discount;
 
-    //Default Container for 1 single invoice with 1 single invoiceDetail
-    @ManyToOne
-    @JoinColumn(name = "default_container_id")
-    private Container defaultContainer;
-
-
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

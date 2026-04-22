@@ -24,7 +24,7 @@ public class Company {
 
     @NotBlank
     @Size(max = 150)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @NotBlank
@@ -32,11 +32,14 @@ public class Company {
     @Column(nullable = false)
     private String location;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private List<ScrapYard> scrapYards=new ArrayList<>();
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private List<Customer> customers=new ArrayList<>();
+
+    @Column(nullable = false)
+    private boolean active = true;
 
 
 

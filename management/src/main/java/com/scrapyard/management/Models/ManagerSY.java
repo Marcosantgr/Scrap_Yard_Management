@@ -3,17 +3,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@ToString(exclude = "scrapYard")
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "managerSY")
+@Table(name = "manager_sy")
 public class ManagerSY {
 
     @Id
@@ -22,18 +20,18 @@ public class ManagerSY {
 
     @NotBlank
     @Size(max = 150)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @NotBlank
     @Email
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
+    @Column
     private String phone;
 
-    @ManyToOne
-    @JoinColumn(name = "scrap_yard_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "scrap_yard_id", nullable = false)
     private ScrapYard scrapYard;
 }

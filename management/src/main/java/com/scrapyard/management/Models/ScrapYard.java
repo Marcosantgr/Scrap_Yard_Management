@@ -32,20 +32,24 @@ public class ScrapYard {
     @Column(nullable = false)
     private String location;
 
-    private boolean active;
+    @Column(nullable = false)
+    private boolean active = true;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Container> containers=new ArrayList<>();
 
-    @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY)
     private List<Invoice> invoices=new ArrayList<>();
 
-    @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ManagerSY> managers=new ArrayList<>();
+
+    @OneToMany(mappedBy = "scrapYard" , cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    private List<Movement> movements=new ArrayList<>();
 
 
 

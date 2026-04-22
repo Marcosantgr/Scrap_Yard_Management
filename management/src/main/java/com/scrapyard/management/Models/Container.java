@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,41 +29,17 @@ public class Container {
     private String description;
 
     @Column(nullable = false)
-    private Double materialWeight;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MaterialType materialType;
+    private BigDecimal materialWeight;
 
     @ManyToOne
     @JoinColumn(name = "scrapyard_id", nullable = false)
     private ScrapYard scrapYard;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UnitOfMeasure stockUnit = UnitOfMeasure.KILOGRAMS;
-
-    @OneToMany(mappedBy = "defaultContainer")
-    private List<Invoice> invoices=new ArrayList<>();
-
-    @OneToMany(mappedBy = "container")
+    @OneToMany(mappedBy = "container", fetch = FetchType.LAZY)
     private List<InvoiceDetail> invoiceDetails=new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ContainerSize containerSize;
-
-    @OneToMany(mappedBy ="originContainer")
-    private List<Movement> outgoingMovement = new ArrayList<>();
-
-
-    @OneToMany(mappedBy ="destinationContainer")
-    private List<Movement> incomingMovement = new ArrayList<>();
-
-
-
-
-
-
 
 }

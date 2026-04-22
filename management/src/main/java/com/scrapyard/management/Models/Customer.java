@@ -26,22 +26,22 @@ public class Customer {
 
     @NotBlank
     @Size(max = 150)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @NotNull
     @Column(nullable = false, unique = true)
-    private Long personalId;
+    private String personalId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CustomerType typeCustomer;
 
-    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Invoice> invoices=new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
 
