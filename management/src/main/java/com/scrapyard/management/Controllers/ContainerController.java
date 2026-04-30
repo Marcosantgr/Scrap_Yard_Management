@@ -85,9 +85,8 @@ public class ContainerController {
     }
 
 
-    @GetMapping("/yard/containers")
-    public ResponseEntity<?> getContainersByScrapYard(
-            @RequestParam ScrapYardDToGetContainers yard) {
+    @GetMapping("/all-by-yard")
+    public ResponseEntity<?> getContainersByScrapYard( ScrapYardDToGetContainers yard) {
         try {
             return ResponseEntity.ok(containerServices.getContainersByScrapYard(yard));
         } catch (IllegalArgumentException e) {

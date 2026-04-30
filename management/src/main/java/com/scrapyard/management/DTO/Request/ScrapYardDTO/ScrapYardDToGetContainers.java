@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class ScrapYardDToGetContainers {
 
-    private String ScrapYardName;
-    private String CompanyName;
+    private String scrapYardName;
+    private String companyName;
 
 }

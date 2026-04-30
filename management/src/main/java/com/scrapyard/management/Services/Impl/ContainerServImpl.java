@@ -105,6 +105,7 @@ public class ContainerServImpl implements IContainerService {
         }
 
         existing.setDescription(cont.getDescription());
+        existing.setMaterialType(cont.getMaterialType());
 
         Container updatedContainer = containerRepo.save(existing);
 
