@@ -16,7 +16,4 @@ private String location;
 private boolean active;
 
 
-
-
-
 }

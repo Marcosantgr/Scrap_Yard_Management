@@ -1,9 +1,8 @@
 package com.scrapyard.management.Services.Impl;
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestInsert;
-import com.scrapyard.management.DTO.Response.CompanyDTO.CompanyDTOResponse;
+import com.scrapyard.management.DTO.Response.ContainerDTO.ContainerDTOResponse;
 import com.scrapyard.management.DTO.Response.ScrapYardDTO.ScrapYardDTOResponse;
 import com.scrapyard.management.Models.Company;
-import com.scrapyard.management.Models.Container;
 import com.scrapyard.management.Models.ScrapYard;
 import com.scrapyard.management.Repository.CompanyRepo;
 import com.scrapyard.management.Repository.ScrapYardRepo;
@@ -24,10 +23,6 @@ public class ScrapYardServImpl implements IScrapYardService {
     private final CompanyRepo companyRepo;
     @Autowired
     private final CompanyServImpl companyServImpl;
-
-
-
-
 
     public ScrapYardServImpl(ScrapYardRepo scrapYardRepo, CompanyRepo companyRepo, CompanyServImpl companyServImpl) {
         this.scrapYardRepo = scrapYardRepo;
@@ -84,7 +79,8 @@ public class ScrapYardServImpl implements IScrapYardService {
         ScrapYard yardEntity = new ScrapYard();
 
         Company company = companyRepo.findById(scrapYardDTO.getCompanyId()).
-                orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + scrapYardDTO.getCompanyId()));
+                orElseThrow(() -> new IllegalArgumentException("Company not found with ID: "
+                        + scrapYardDTO.getCompanyId()));
 
         yardEntity.setCompany(company);
         yardEntity.setName(scrapYardDTO.getName());
@@ -93,7 +89,8 @@ public class ScrapYardServImpl implements IScrapYardService {
 
         ScrapYard saved= scrapYardRepo.save(yardEntity);
 
-        return new ScrapYardDTOResponse(saved.getCompany().getName(),saved.getName(),saved.getLocation(),saved.isActive());
+        return new ScrapYardDTOResponse(saved.getCompany().getName(),
+                saved.getName(),saved.getLocation(),saved.isActive());
     }
 
     @Override
@@ -139,4 +136,21 @@ public class ScrapYardServImpl implements IScrapYardService {
         return new ScrapYardDTOResponse(saved.getCompany().getName(),
                 saved.getName(),saved.getLocation(),saved.isActive());
     }
+
+    @Override
+    public List<ContainerDTOResponse> getContainers(Long yardId) {
+
+        ScrapYard existing = scrapYardRepo.findById(yardId).orElseThrow(() ->
+                new IllegalArgumentException("The scrapyard does not exist"));
+
+        if (existing.getContainers().isEmpty()) {
+            throw new IllegalArgumentException("No containers present in the scrapyard");
+        }
+
+        return existing.getContainers().stream().map(container -> new
+                ContainerDTOResponse(container.getDescription(), container.getMaterialType()
+        ,container.getContainerSize(),container.getMaterialWeight())).toList();
+    }
+
+
 }

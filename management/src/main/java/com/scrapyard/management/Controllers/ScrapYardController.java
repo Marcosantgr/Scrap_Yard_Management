@@ -75,6 +75,16 @@ public class ScrapYardController {
     }
 }
 
+    @GetMapping("/containers/{yardId}")
+    public ResponseEntity<?> getContainers(@PathVariable Long yardId) {
+        try {
+            return ResponseEntity.ok(scrapYardServImpl.getContainers(yardId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,

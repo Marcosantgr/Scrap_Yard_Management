@@ -55,7 +55,7 @@ LocalDateTime updatedAt;
 ### ContainerInventory
 Inventario a nivel Container por tipo de material.
 
-```java
+/*```java
 Container container
 MaterialType materialType
 BigDecimal quantity       // siempre >= 0
