@@ -1,6 +1,7 @@
 package com.scrapyard.management.Services.Impl;
 import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
 import com.scrapyard.management.DTO.Response.CompanyDTO.CompanyDTOResponse;
+import com.scrapyard.management.DTO.Response.CustomerDTO.CustomerDTOResponse;
 import com.scrapyard.management.DTO.Response.ScrapYardDTO.ScrapYardDTOResponse;
 import com.scrapyard.management.Models.Company;
 import com.scrapyard.management.Repository.CompanyRepo;
@@ -111,13 +112,20 @@ public class CompanyServImpl implements ICompanyService {
                 .getName(), yard.getName(), yard.getLocation(),  yard.isActive())).toList();
     }
 
+    @Override
+    public List<CustomerDTOResponse> getAllCustomers(Long companyId) {
 
+        if (!companyRepo.existsById(companyId)) {
+            System.out.println("The company does not exist");
+        }
 
+        Company existing = companyRepo.findById(companyId).get();
 
-
-
-
-
+        return existing.getCustomers().stream().map(customer -> new CustomerDTOResponse(
+                customer.getId(), customer.getName(), customer.getPersonalId(), customer.getTypeCustomer(),
+                customer.getCompany().getName()
+        )).toList();
+    }
 
 
 

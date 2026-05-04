@@ -90,6 +90,16 @@ public class CompanyController {
         }
     }
 
+    @GetMapping("/{id}/all-customers")
+    public ResponseEntity<?> getAllCustomer(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(companyServices.getAllCustomers(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
 
 
 

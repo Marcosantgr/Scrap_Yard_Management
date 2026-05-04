@@ -11,7 +11,6 @@ public interface CompanyRepo extends JpaRepository<Company, Long> {
 
     Optional<Company> findByName(String companyName);
     boolean existsByName(String name);
-
    //like en sql
    List<Company> findByNameContainingIgnoreCase(String companyName);
 
