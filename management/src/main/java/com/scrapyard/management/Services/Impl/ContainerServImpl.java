@@ -146,7 +146,7 @@ public class ContainerServImpl implements IContainerService {
         if (company == null || company.getCompanyName() == null || company.getCompanyName().isBlank()) {
             throw new IllegalArgumentException("Company name cannot be blank or null");
         }
-        Company existing = companyRepo.findByname(company.getCompanyName()).orElseThrow(() ->
+        Company existing = companyRepo.findByName(company.getCompanyName()).orElseThrow(() ->
                 new IllegalArgumentException("The company does not exist, please try again"));
         return containerRepo.findContainersByCompanyName(company.getCompanyName());
     }

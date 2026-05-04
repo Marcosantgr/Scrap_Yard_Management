@@ -79,4 +79,24 @@ public class CompanyController {
         return companyServices.deleteCompany(id);
     }
 
+
+    @GetMapping("/{id}/all-yards")
+    public ResponseEntity<?> getAllYardsByCompanyId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(companyServices.getAllYards(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 }
