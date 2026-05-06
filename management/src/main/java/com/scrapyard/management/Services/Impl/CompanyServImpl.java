@@ -116,10 +116,14 @@ public class CompanyServImpl implements ICompanyService {
     public List<CustomerDTOResponse> getAllCustomers(Long companyId) {
 
         if (!companyRepo.existsById(companyId)) {
-            System.out.println("The company does not exist");
+            throw new IllegalArgumentException("The company does not exist");
         }
 
         Company existing = companyRepo.findById(companyId).get();
+
+        if (existing.getCustomers().isEmpty()) {
+            throw new IllegalArgumentException("There are no registered Customer found");
+        }
 
         return existing.getCustomers().stream().map(customer -> new CustomerDTOResponse(
                 customer.getId(), customer.getName(), customer.getPersonalId(), customer.getTypeCustomer(),

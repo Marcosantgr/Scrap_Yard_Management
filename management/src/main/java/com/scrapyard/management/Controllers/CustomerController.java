@@ -1,12 +1,11 @@
 package com.scrapyard.management.Controllers;
+import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
 import com.scrapyard.management.DTO.Request.CustomerDTO.CustomerDTOInsert;
 import com.scrapyard.management.Services.Impl.CustomerServImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
 @RestController
@@ -33,7 +32,54 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> allCustomers() {
+        try {
+            return ResponseEntity.ok(customerServices.getAllCustomers());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
 
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(customerServices.getCustomerById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getCustomerByName(@RequestParam String name) {
+        try {
+            return ResponseEntity.ok(customerServices.searchByName(name));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCustomer(
+            @PathVariable Long id,
+            @RequestBody CustomerDTOInsert customerInsert) {
+        try {
+            return ResponseEntity.ok(customerServices.updateCustomer(customerInsert, id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("Error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        return customerServices.deleteCustomer(id);
+    }
 
 
 

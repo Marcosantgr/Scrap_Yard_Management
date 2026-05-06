@@ -72,33 +72,72 @@ public class CustomerServImpl implements ICustomerService {
 
 
 
-
-
-
-
-
-
-
     @Override
-    public Customer getCustomerById(Long id) {
-        return null;
+    public CustomerDTOResponse getCustomerById(Long id) {
+
+      if (!customerRepo.existsById(id)){
+          throw new IllegalArgumentException("There is no customer ID: " + " " + id);
+      }
+        Customer customer = customerRepo.findById(id).get();
+        return new CustomerDTOResponse(customer.getId(), customer.getName(), customer.getPersonalId(),
+                customer.getTypeCustomer(), customer.getCompany().getName());
     }
 
     @Override
-    public Customer searchByName(String name) {
-        return null;
+    public List<CustomerDTOResponse> searchByName(String name) {
+
+     List<Customer> customers = customerRepo.findByNameContainingIgnoreCase(name);
+
+        if (customers.isEmpty()) {
+            throw new IllegalArgumentException("No customer found with name containing: " + name);
+        }
+
+        return customers.stream().map(customer -> new CustomerDTOResponse(customer.getId(), customer.getName(),
+                customer.getPersonalId(), customer.getTypeCustomer(),customer.getCompany().getName())).toList();
     }
 
 
     @Override
-    public Customer updateCustomer(Customer customer, Long id) {
-        return null;
+    public CustomerDTOResponse updateCustomer(CustomerDTOInsert customerInsert, Long id) {
+
+        Customer exist = customerRepo.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("The customer does not exist"));
+
+        if (customerInsert.getName() == null || customerInsert.getName().isBlank() ||
+                customerInsert.getPersonalId() == null ||
+                customerInsert.getTypeCustomer() == null ||
+                customerInsert.getCompanyId() == null) {
+            throw new IllegalArgumentException("There cannot be blank fields");
+        }
+
+        Company companyInsert = companyRepo.findById(customerInsert.getCompanyId()).orElseThrow(() ->
+                new IllegalArgumentException
+                ("The company does not exist"));
+
+        exist.setName(customerInsert.getName());
+        exist.setPersonalId(customerInsert.getPersonalId());
+        exist.setTypeCustomer(customerInsert.getTypeCustomer());
+        exist.setCompany(companyInsert);
+
+        Customer updated = customerRepo.save(exist);
+
+        return new CustomerDTOResponse(updated.getId(),updated.getName(),
+                updated.getPersonalId(), updated.getTypeCustomer(),updated.getCompany().getName());
     }
 
     @Override
-    public void deleteCustomer(Long id) {
-
+    public String deleteCustomer(Long id) {
+            if (customerRepo.existsById(id)) {
+                customerRepo.deleteById(id);
+                return "Customer successfully removed";
+            }else {
+                return "Customer does not exist";
+            }
     }
+
+
+
+
 
     @Override
     public List<Customer> getCustomersByCompany(Long companyId) {
