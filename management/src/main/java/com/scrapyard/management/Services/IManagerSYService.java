@@ -1,4 +1,7 @@
 package com.scrapyard.management.Services;
+import com.scrapyard.management.DTO.Request.ManagerSYDTO.ManagerSYDTORequestInsert;
+import com.scrapyard.management.DTO.Response.ManagerSYDTO.ManagerSYDTOResponse;
+import com.scrapyard.management.Models.Company;
 import com.scrapyard.management.Models.ManagerSY;
 import com.scrapyard.management.Models.ScrapYard;
 import java.util.List;
@@ -6,13 +9,12 @@ import java.util.List;
 public interface IManagerSYService {
 
 
-    List<ManagerSY> getAllManagers();
-    ManagerSY getManagerSYById(Long id);
-    ManagerSY getManagerSYByName(String name);
-    ManagerSY saveManagerSY(ManagerSY manager);
-    ManagerSY updateManager(ManagerSY manager, Long id);
-    void deleteManager(Long id);
-    List<ManagerSY> getAllManagersByScrapYard(ScrapYard yard);
-
+    List<ManagerSYDTOResponse> getAllManagers();
+    ManagerSYDTOResponse getManagerSYById(Long id);
+    List<ManagerSYDTOResponse> getManagerSYByName(String name);
+    ManagerSYDTOResponse saveManagerSY(ManagerSYDTORequestInsert managerDTOInsert);
+    ManagerSYDTOResponse updateManager(ManagerSYDTORequestInsert manager, Long id);
+    String deleteManager(Long id);
+    List<ManagerSYDTOResponse> getAllManagersByScrapYard(Long yardId);
 
 }

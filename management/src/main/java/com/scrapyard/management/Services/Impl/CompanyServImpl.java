@@ -5,7 +5,6 @@ import com.scrapyard.management.DTO.Response.CustomerDTO.CustomerDTOResponse;
 import com.scrapyard.management.DTO.Response.ScrapYardDTO.ScrapYardDTOResponse;
 import com.scrapyard.management.Models.Company;
 import com.scrapyard.management.Repository.CompanyRepo;
-import com.scrapyard.management.Repository.ScrapYardRepo;
 import com.scrapyard.management.Services.ICompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +54,10 @@ public class CompanyServImpl implements ICompanyService {
         return companies.stream().map(comp ->
                 new CompanyDTOResponse(comp.getId(), comp.getName(), comp.getLocation())).toList();
     }
+
+
+
+
 
     @Override
     public CompanyDTOResponse saveCompany(CompanyDTORequestInsert company) {
