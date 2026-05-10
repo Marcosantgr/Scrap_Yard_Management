@@ -46,7 +46,7 @@ public class Invoice {
 
     // Invoice discount
     @Column
-    private BigDecimal  discount;
+    private BigDecimal discount;
 
     @PrePersist
     private void prePersist() {

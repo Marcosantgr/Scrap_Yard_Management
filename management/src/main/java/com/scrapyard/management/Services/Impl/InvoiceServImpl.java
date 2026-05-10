@@ -1,0 +1,221 @@
+package com.scrapyard.management.Services.Impl;
+import com.scrapyard.management.DTO.Request.InvoiceDTO.InvoiceDTORequestInsert;
+import com.scrapyard.management.DTO.Request.InvoiceDetailDTO.InvoiceDetailDTORequestInsert;
+import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse;
+import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse1;
+import com.scrapyard.management.DTO.Response.InvoiceDetailDTO.InvoiceDetailDTOResponse;
+import com.scrapyard.management.Models.*;
+import com.scrapyard.management.Repository.ContainerRepo;
+import com.scrapyard.management.Repository.CustomerRepo;
+import com.scrapyard.management.Repository.InvoiceRepo;
+import com.scrapyard.management.Repository.ScrapYardRepo;
+import com.scrapyard.management.Services.IInvoiceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.scrapyard.management.Mapper.mapDetail;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+
+
+@Service
+public class InvoiceServImpl implements IInvoiceService {
+
+    @Autowired
+    private mapDetail mapDetail;
+
+    @Autowired
+    private final InvoiceRepo invoiceRepo;
+
+    @Autowired
+    private final CustomerRepo customerRepo;
+
+    @Autowired
+    private final ScrapYardRepo scrapYardRepo;
+
+    @Autowired
+    private final ContainerRepo containerRepo;
+
+    public InvoiceServImpl(InvoiceRepo invoiceRepo, CustomerRepo customerRepo, ScrapYardRepo scrapYardRepo, ContainerRepo containerRepo) {
+        this.invoiceRepo = invoiceRepo;
+        this.customerRepo = customerRepo;
+        this.scrapYardRepo = scrapYardRepo;
+        this.containerRepo = containerRepo;
+    }
+
+    @Override
+    public List<InvoiceDTOResponse1> getAllInvoices() {
+
+        if (invoiceRepo.findAll().isEmpty()) {
+            throw new IllegalArgumentException("No invoices are registered");
+        }
+
+        return invoiceRepo.findAll().stream().map(invoice -> new InvoiceDTOResponse1(
+                invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
+                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
+
+        )).toList();
+    }
+
+    @Override
+    public InvoiceDTOResponse1 getInvoiceById(Long id) {
+
+        if(id == null || id<=0 ){
+            throw new IllegalArgumentException("The ID cannot be null, zero, or negative.");
+        }
+
+        if (invoiceRepo.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("Invoice with id " + id + " does not exist");
+        }
+
+        Invoice invoice = invoiceRepo.findById(id).get();
+
+        return new InvoiceDTOResponse1(invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
+                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount());
+    }
+
+
+    @Override
+    public List<InvoiceDTOResponse1> getInvoiceByCustomer(Long customerId) {
+
+        if (!customerRepo.existsById(customerId)) {
+            throw new IllegalArgumentException("There is no customer ID: " + " " + customerId);
+        }
+
+        List<Invoice> invoices = invoiceRepo.findByCustomerId(customerId);
+
+        if (invoices.isEmpty()) {
+            throw new IllegalArgumentException("No invoices are registered with this customer");
+        }
+
+        return invoices.stream().map(invoice -> new InvoiceDTOResponse1(
+                invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
+                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
+        )).toList();
+    }
+
+    @Override
+    public List<InvoiceDTOResponse1> getAllInvoicesByScrapYard(Long scrapYardId) {
+
+        if(scrapYardId == null || scrapYardId<=0 ){
+            throw new IllegalArgumentException("The ID cannot be null, zero, or negative.");
+        }
+
+        if (!scrapYardRepo.existsById(scrapYardId)) {
+            throw new IllegalArgumentException("There is no scrapyard ID: " + scrapYardId);
+        }
+
+        ScrapYard yard = scrapYardRepo.findById(scrapYardId).get();
+        List<Invoice> invoices=yard.getInvoices();
+
+        if (invoices.isEmpty()) {
+            throw new IllegalArgumentException("No invoices are registered with this scrapyard");
+        }
+
+        return invoices.stream().map(invoice -> new InvoiceDTOResponse1(
+                invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
+                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
+        )).toList();
+    }
+
+
+    @Override
+    public InvoiceDTOResponse saveInvoice(InvoiceDTORequestInsert invoiceDto) {
+
+        // 1. Validar customer
+        Customer customer = customerRepo.findById(invoiceDto.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        // 2. Validar scrapyard
+        ScrapYard scrapyard = scrapYardRepo.findById(invoiceDto.getScrapYardId())
+                .orElseThrow(() -> new IllegalArgumentException("ScrapYard not found"));
+
+        // 3. Crear invoice
+        Invoice invoice = new Invoice();
+        invoice.setCustomer(customer);
+        invoice.setScrapYard(scrapyard);
+        invoice.setDiscount(invoiceDto.getDiscount());
+
+        List<InvoiceDetail> detailEntities = new ArrayList<>();
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        // 4. Procesar details
+        for (InvoiceDetailDTORequestInsert detailDTO : invoiceDto.getDetails()) {
+
+            Container container = containerRepo.findById(detailDTO.getContainerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Container not found"));
+
+            // VALIDACIÓN DE NEGOCIO
+            if (!container.getMaterialType().equals(detailDTO.getMaterialType())) {
+                throw new IllegalArgumentException(
+                        "Material type mismatch: container has "
+                                + container.getMaterialType()
+                                + " but detail has "
+                                + detailDTO.getMaterialType()
+                );
+            }
+
+            InvoiceDetail detail = new InvoiceDetail();
+
+            detail.setInvoice(invoice);
+            detail.setMaterialType(detailDTO.getMaterialType());
+            detail.setUnit(detailDTO.getUnit());
+            detail.setWeight(detailDTO.getWeight());
+            detail.setUnitPrice(detailDTO.getUnitPrice());
+            detail.setContainer(container);
+
+            BigDecimal subtotal = detail.getSubtotal();
+            total = total.add(subtotal);
+
+            detailEntities.add(detail);
+        }
+
+        // 5. Aplicar descuento
+        if (invoice.getDiscount() != null) {
+            total = total.subtract(invoice.getDiscount());
+        }
+
+        invoice.setDetails(detailEntities);
+        invoice.setTotalPaid(total);
+
+        // 6. Guardar invoice (cascade guarda details)
+        Invoice saved = invoiceRepo.save(invoice);
+
+        List<InvoiceDetailDTOResponse> detailsDtoResponses =
+                saved.getDetails()
+                        .stream()
+                        .map(mapDetail::mapDetailFunc)
+                        .toList();
+
+        return new InvoiceDTOResponse(saved.getCustomer().getName(), saved.getId(), saved.getCustomer().getId(),
+                saved.getCustomer().getTypeCustomer(), saved.getScrapYard().getName(),saved.getScrapYard().getId(),
+                saved.getCreatedAt(), detailsDtoResponses, saved.getTotalPaid(), saved.getDiscount());
+    }
+
+
+
+
+
+
+    @Override
+    public Invoice updateInvoice(Invoice invoice, Long id) {
+        return null;
+    }
+
+    @Override
+    public void deleteInvoice(Long id) {
+
+    }
+
+
+
+
+
+}
