@@ -19,4 +19,6 @@ public class InvoiceDTORequestInsert {
 
     private List<InvoiceDetailDTORequestInsert> details;
 
+    private Long managerId;
+
 }

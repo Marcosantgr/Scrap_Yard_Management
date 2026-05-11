@@ -7,10 +7,7 @@ import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse1;
 import com.scrapyard.management.DTO.Response.InvoiceDetailDTO.InvoiceDetailDTOResponse;
 import com.scrapyard.management.Models.*;
 import com.scrapyard.management.Models.Enums.InvoiceStatus;
-import com.scrapyard.management.Repository.ContainerRepo;
-import com.scrapyard.management.Repository.CustomerRepo;
-import com.scrapyard.management.Repository.InvoiceRepo;
-import com.scrapyard.management.Repository.ScrapYardRepo;
+import com.scrapyard.management.Repository.*;
 import com.scrapyard.management.Services.IInvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,11 +38,15 @@ public class InvoiceServImpl implements IInvoiceService {
     @Autowired
     private final ContainerRepo containerRepo;
 
-    public InvoiceServImpl(InvoiceRepo invoiceRepo, CustomerRepo customerRepo, ScrapYardRepo scrapYardRepo, ContainerRepo containerRepo) {
+    @Autowired
+    private final ManagerSYRepo managerSYRepo;
+
+    public InvoiceServImpl(InvoiceRepo invoiceRepo, CustomerRepo customerRepo, ScrapYardRepo scrapYardRepo, ContainerRepo containerRepo, ManagerSYRepo managerSYRepo) {
         this.invoiceRepo = invoiceRepo;
         this.customerRepo = customerRepo;
         this.scrapYardRepo = scrapYardRepo;
         this.containerRepo = containerRepo;
+        this.managerSYRepo = managerSYRepo;
     }
 
     @Override
@@ -87,9 +88,12 @@ public class InvoiceServImpl implements IInvoiceService {
                         .map(mapDetail::mapDetailFunc)
                         .toList();
 
-        return new InvoiceDTOResponse(invoice.getCustomer().getName(), invoice.getId(), invoice.getCustomer().getId(),
-                invoice.getCustomer().getTypeCustomer(), invoice.getScrapYard().getName(),invoice.getScrapYard().getId(),
-                invoice.getCreatedAt(), detailsDtoResponses, invoice.getTotalPaid(), invoice.getDiscount());
+        return new InvoiceDTOResponse(invoice.getCustomer().getName(),
+                invoice.getId(), invoice.getCustomer().getId(),
+                invoice.getCustomer().getTypeCustomer(),
+                invoice.getScrapYard().getName(),invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(), detailsDtoResponses, invoice.getTotalPaid(),
+                invoice.getDiscount(), invoice.getManager().getName());
 
     }
 
@@ -189,6 +193,14 @@ public class InvoiceServImpl implements IInvoiceService {
         ScrapYard scrapyard = scrapYardRepo.findById(invoiceDto.getScrapYardId())
                 .orElseThrow(() -> new IllegalArgumentException("ScrapYard not found"));
 
+        ManagerSY manager = managerSYRepo.findById(invoiceDto.getManagerId())
+                .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
+
+
+        if(!manager.getScrapYard().getId().equals(scrapyard.getId())){
+            throw new IllegalArgumentException(
+                    "Manager must belong to the yard");
+        }
 
         // VALIDACIÓN DE NEGOCIO
         if (!customer.getCompany().getId()
@@ -198,18 +210,26 @@ public class InvoiceServImpl implements IInvoiceService {
                     "Customer and ScrapYard must belong to the same company");
         }
 
-        // 3. Crear invoice
+        // VALIDAR DETAILS
+        if (invoiceDto.getDetails() == null || invoiceDto.getDetails().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Invoice must contain at least one detail"
+            );
+        }
+
+        // Crear invoice
         Invoice invoice = new Invoice();
         invoice.setStatus(InvoiceStatus.ACTIVE);
         invoice.setCustomer(customer);
         invoice.setScrapYard(scrapyard);
         invoice.setDiscount(invoiceDto.getDiscount());
+        invoice.setManager(manager);
 
         List<InvoiceDetail> detailEntities = new ArrayList<>();
 
         BigDecimal total = BigDecimal.ZERO;
 
-        // 4. Procesar details
+        // Procesar details
         for (InvoiceDetailDTORequestInsert detailDTO : invoiceDto.getDetails()) {
 
             Container container = containerRepo.findById(detailDTO.getContainerId())
@@ -222,6 +242,12 @@ public class InvoiceServImpl implements IInvoiceService {
                                 + container.getMaterialType()
                                 + " but detail has "
                                 + detailDTO.getMaterialType()
+                );
+            }
+
+            if (!container.getScrapYard().getId().equals(scrapyard.getId())) {
+                throw new IllegalArgumentException(
+                        "Container does not belong to this ScrapYard"
                 );
             }
 
@@ -241,9 +267,15 @@ public class InvoiceServImpl implements IInvoiceService {
             detailEntities.add(detail);
         }
 
-        // 5. Aplicar descuento
+        // Aplicar descuento
         if (invoice.getDiscount() != null) {
             total = total.subtract(invoice.getDiscount());
+        }
+
+        if (total.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Total cannot be negative"
+            );
         }
 
         invoice.setDetails(detailEntities);
@@ -258,9 +290,13 @@ public class InvoiceServImpl implements IInvoiceService {
                         .map(mapDetail::mapDetailFunc)
                         .toList();
 
-        return new InvoiceDTOResponse(saved.getCustomer().getName(), saved.getId(), saved.getCustomer().getId(),
-                saved.getCustomer().getTypeCustomer(), saved.getScrapYard().getName(),saved.getScrapYard().getId(),
-                saved.getCreatedAt(), detailsDtoResponses, saved.getTotalPaid(), saved.getDiscount());
+        return new InvoiceDTOResponse(saved.getCustomer().getName(),
+                saved.getId(), saved.getCustomer().getId(),
+                saved.getCustomer().getTypeCustomer(),
+                saved.getScrapYard().getName(),saved.getScrapYard().getId(),
+                saved.getCreatedAt(), detailsDtoResponses,
+                saved.getTotalPaid(), saved.getDiscount(),
+                saved.getManager().getName());
     }
 
     @Override

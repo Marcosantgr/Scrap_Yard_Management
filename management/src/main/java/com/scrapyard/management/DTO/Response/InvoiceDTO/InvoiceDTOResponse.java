@@ -24,7 +24,8 @@ public class InvoiceDTOResponse {
     private LocalDateTime createdAt;
     private List<InvoiceDetailDTOResponse> details=new ArrayList<>();
     private BigDecimal totalPaid;
-    private BigDecimal  discount;
+    private BigDecimal discount;
+    private String managerName;
 
 
 
