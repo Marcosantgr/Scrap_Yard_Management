@@ -1,10 +1,12 @@
 package com.scrapyard.management.Services.Impl;
 import com.scrapyard.management.DTO.Request.InvoiceDTO.InvoiceDTORequestInsert;
 import com.scrapyard.management.DTO.Request.InvoiceDetailDTO.InvoiceDetailDTORequestInsert;
+import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceCancelDTOResponse;
 import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse;
 import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse1;
 import com.scrapyard.management.DTO.Response.InvoiceDetailDTO.InvoiceDetailDTOResponse;
 import com.scrapyard.management.Models.*;
+import com.scrapyard.management.Models.Enums.InvoiceStatus;
 import com.scrapyard.management.Repository.ContainerRepo;
 import com.scrapyard.management.Repository.CustomerRepo;
 import com.scrapyard.management.Repository.InvoiceRepo;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.scrapyard.management.Mapper.mapDetail;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,16 +55,15 @@ public class InvoiceServImpl implements IInvoiceService {
             throw new IllegalArgumentException("No invoices are registered");
         }
 
-        return invoiceRepo.findAll().stream().map(invoice -> new InvoiceDTOResponse1(
+        return invoiceRepo.findAll().stream().map(invoice -> new InvoiceDTOResponse1(invoice.getId(),
                 invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
                 invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
-                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
-
-        )).toList();
+                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount(),invoice.getStatus(),
+                invoice.getCancelledAt())).toList();
     }
 
     @Override
-    public InvoiceDTOResponse1 getInvoiceById(Long id) {
+    public InvoiceDTOResponse getInvoiceById(Long id) {
 
         if(id == null || id<=0 ){
             throw new IllegalArgumentException("The ID cannot be null, zero, or negative.");
@@ -73,31 +75,63 @@ public class InvoiceServImpl implements IInvoiceService {
 
         Invoice invoice = invoiceRepo.findById(id).get();
 
-        return new InvoiceDTOResponse1(invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
-                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
-                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount());
+        if(invoice.getStatus() == InvoiceStatus.CANCELLED){
+            throw new IllegalArgumentException(
+                    "Cannot operate on a cancelled invoice"
+            );
+        }
+
+        List<InvoiceDetailDTOResponse> detailsDtoResponses =
+                invoice.getDetails()
+                        .stream()
+                        .map(mapDetail::mapDetailFunc)
+                        .toList();
+
+        return new InvoiceDTOResponse(invoice.getCustomer().getName(), invoice.getId(), invoice.getCustomer().getId(),
+                invoice.getCustomer().getTypeCustomer(), invoice.getScrapYard().getName(),invoice.getScrapYard().getId(),
+                invoice.getCreatedAt(), detailsDtoResponses, invoice.getTotalPaid(), invoice.getDiscount());
+
     }
 
 
     @Override
     public List<InvoiceDTOResponse1> getInvoiceByCustomer(Long customerId) {
-
         if (!customerRepo.existsById(customerId)) {
             throw new IllegalArgumentException("There is no customer ID: " + " " + customerId);
         }
-
         List<Invoice> invoices = invoiceRepo.findByCustomerId(customerId);
 
         if (invoices.isEmpty()) {
             throw new IllegalArgumentException("No invoices are registered with this customer");
         }
+        List<InvoiceDTOResponse1> activeInvoices = invoices.stream()
 
-        return invoices.stream().map(invoice -> new InvoiceDTOResponse1(
-                invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
-                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
-                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
-        )).toList();
+                // IGNORA CANCELADAS
+                .filter(invoice -> invoice.getStatus() != InvoiceStatus.CANCELLED)
+
+                .map(invoice -> new InvoiceDTOResponse1(
+                        invoice.getId(),
+                        invoice.getCustomer().getName(),
+                        invoice.getCustomer().getTypeCustomer(),
+                        invoice.getScrapYard().getName(),
+                        invoice.getScrapYard().getId(),
+                        invoice.getCreatedAt(),
+                        invoice.getTotalPaid(),
+                        invoice.getDiscount(),
+                        invoice.getStatus(),
+                        invoice.getCancelledAt()
+                ))
+                .toList();
+        if (activeInvoices.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "All invoices for this customer are cancelled"
+            );
+        }
+
+        return activeInvoices;
     }
+
+
 
     @Override
     public List<InvoiceDTOResponse1> getAllInvoicesByScrapYard(Long scrapYardId) {
@@ -117,11 +151,30 @@ public class InvoiceServImpl implements IInvoiceService {
             throw new IllegalArgumentException("No invoices are registered with this scrapyard");
         }
 
-        return invoices.stream().map(invoice -> new InvoiceDTOResponse1(
-                invoice.getCustomer().getName(),invoice.getCustomer().getTypeCustomer(),
-                invoice.getScrapYard().getName(), invoice.getScrapYard().getId(),
-                invoice.getCreatedAt(),invoice.getTotalPaid(), invoice.getDiscount()
-        )).toList();
+        List<InvoiceDTOResponse1> activeInvoices = invoices.stream()
+
+                // IGNORA CANCELADAS
+                .filter(invoice -> invoice.getStatus() != InvoiceStatus.CANCELLED)
+
+                .map(invoice -> new InvoiceDTOResponse1(
+                        invoice.getId(),
+                        invoice.getCustomer().getName(),
+                        invoice.getCustomer().getTypeCustomer(),
+                        invoice.getScrapYard().getName(),
+                        invoice.getScrapYard().getId(),
+                        invoice.getCreatedAt(),
+                        invoice.getTotalPaid(),
+                        invoice.getDiscount(),
+                        invoice.getStatus(),
+                        invoice.getCancelledAt()
+                ))
+                .toList();
+        if (activeInvoices.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "All invoices for this yard are cancelled"
+            );
+        }
+        return activeInvoices;
     }
 
 
@@ -136,8 +189,18 @@ public class InvoiceServImpl implements IInvoiceService {
         ScrapYard scrapyard = scrapYardRepo.findById(invoiceDto.getScrapYardId())
                 .orElseThrow(() -> new IllegalArgumentException("ScrapYard not found"));
 
+
+        // VALIDACIÓN DE NEGOCIO
+        if (!customer.getCompany().getId()
+                .equals(scrapyard.getCompany().getId())) {
+
+            throw new IllegalArgumentException(
+                    "Customer and ScrapYard must belong to the same company");
+        }
+
         // 3. Crear invoice
         Invoice invoice = new Invoice();
+        invoice.setStatus(InvoiceStatus.ACTIVE);
         invoice.setCustomer(customer);
         invoice.setScrapYard(scrapyard);
         invoice.setDiscount(invoiceDto.getDiscount());
@@ -171,6 +234,7 @@ public class InvoiceServImpl implements IInvoiceService {
             detail.setUnitPrice(detailDTO.getUnitPrice());
             detail.setContainer(container);
 
+
             BigDecimal subtotal = detail.getSubtotal();
             total = total.add(subtotal);
 
@@ -199,23 +263,27 @@ public class InvoiceServImpl implements IInvoiceService {
                 saved.getCreatedAt(), detailsDtoResponses, saved.getTotalPaid(), saved.getDiscount());
     }
 
-
-
-
-
-
     @Override
-    public Invoice updateInvoice(Invoice invoice, Long id) {
-        return null;
+    public InvoiceCancelDTOResponse cancelInvoice(Long id) {
+
+        Invoice invoice = invoiceRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
+
+        if (invoice.getStatus() == InvoiceStatus.CANCELLED) {
+            throw new IllegalArgumentException("Invoice already cancelled");
+        }
+
+        invoice.setStatus(InvoiceStatus.CANCELLED);
+        invoice.setCancelledAt(LocalDateTime.now());
+
+        Invoice saved = invoiceRepo.save(invoice);
+
+        return new InvoiceCancelDTOResponse(
+                saved.getId(),
+                saved.getStatus(),
+                saved.getCancelledAt()
+        );
     }
-
-    @Override
-    public void deleteInvoice(Long id) {
-
-    }
-
-
-
 
 
 }

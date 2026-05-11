@@ -1,7 +1,9 @@
 package com.scrapyard.management.Services.Impl;
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestInsert;
+import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestUpdate;
 import com.scrapyard.management.DTO.Response.ContainerDTO.ContainerDTOResponse;
 import com.scrapyard.management.DTO.Response.ScrapYardDTO.ScrapYardDTOResponse;
+import com.scrapyard.management.DTO.Response.ScrapYardDTO.dtoResponseId;
 import com.scrapyard.management.Models.Company;
 import com.scrapyard.management.Models.ScrapYard;
 import com.scrapyard.management.Repository.CompanyRepo;
@@ -32,15 +34,15 @@ public class ScrapYardServImpl implements IScrapYardService {
 
 
     @Override
-    public List<ScrapYardDTOResponse> getAllScrapYard() {
+    public List<dtoResponseId> getAllScrapYard() {
 
         if (scrapYardRepo.findAll().isEmpty()) {
             throw new IllegalArgumentException("There are no registered ScrapYards");
         }
 
         return scrapYardRepo.findAll().stream().map
-                (yard -> new ScrapYardDTOResponse
-                        (yard.getCompany().getName(), yard.getName(), yard.getLocation(), yard.isActive())).toList();
+                (yard -> new dtoResponseId
+                        (yard.getId(), yard.getCompany().getName(), yard.getName(), yard.getLocation(), yard.isActive())).toList();
     }
 
     @Override
@@ -118,12 +120,12 @@ public class ScrapYardServImpl implements IScrapYardService {
 
 
     @Override
-    public ScrapYardDTOResponse updateScrapYard(ScrapYardDTORequestInsert yard, Long id) {
+    public ScrapYardDTOResponse updateScrapYard(ScrapYardDTORequestUpdate yard, Long id) {
 
         ScrapYard existing = scrapYardRepo.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("The scrapyard does not exist"));
 
-        if (yard.getName().isBlank() || yard.getLocation().isBlank() || yard.getCompanyId() == null) {
+        if (yard.getName().isBlank() || yard.getLocation().isBlank() ) {
             throw new IllegalArgumentException("There cannot be blank fields");
         }
 
@@ -148,7 +150,7 @@ public class ScrapYardServImpl implements IScrapYardService {
         }
 
         return existing.getContainers().stream().map(container -> new
-                ContainerDTOResponse(container.getDescription(), container.getMaterialType()
+                ContainerDTOResponse(container.getId(),container.getDescription(), container.getMaterialType()
         ,container.getContainerSize(),container.getMaterialWeight())).toList();
     }
 

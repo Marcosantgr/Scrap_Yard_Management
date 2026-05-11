@@ -10,6 +10,7 @@ public interface ContainerRepo extends JpaRepository<Container,Long> {
 
     @Query("""
     SELECT new com.scrapyard.management.DTO.Response.ContainerDTO.ContainerDTOResponse(
+        c.id,
         c.description,
         c.materialType,
         c.containerSize,

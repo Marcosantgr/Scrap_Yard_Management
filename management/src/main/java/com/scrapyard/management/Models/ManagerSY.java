@@ -34,4 +34,9 @@ public class ManagerSY {
     @ManyToOne(optional = false)
     @JoinColumn(name = "scrap_yard_id", nullable = false)
     private ScrapYard scrapYard;
+
+
+
+
+
 }

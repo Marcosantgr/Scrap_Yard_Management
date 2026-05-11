@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 public class ContainerDTOResponse {
 
 
+   private Long id;
    private String description;
    private MaterialType materialType;
    private ContainerSize containerSize;

@@ -43,7 +43,7 @@ public class ContainerServImpl implements IContainerService {
         return containerRepo.
                 findAll().stream().
                 map(cont ->
-                new ContainerDTOResponse(cont.getDescription(), cont.getMaterialType()
+                new ContainerDTOResponse(cont.getId(),cont.getDescription(), cont.getMaterialType()
                 ,cont.getContainerSize(), cont.getMaterialWeight())).toList();
     }
 
@@ -55,7 +55,7 @@ public class ContainerServImpl implements IContainerService {
             throw new IllegalArgumentException("There is no container ID: " + " " + id);
         }
         Container container = containerRepo.findById(id).get();
-        return new ContainerDTOResponse(container.getDescription(),
+        return new ContainerDTOResponse(container.getId(),container.getDescription(),
                 container.getMaterialType(),container.getContainerSize(),
                 container.getMaterialWeight());
     }
@@ -87,6 +87,7 @@ public class ContainerServImpl implements IContainerService {
         Container savedContainer = containerRepo.save(containerEntity);
 
         return new ContainerDTOResponse(
+                savedContainer.getId(),
                 savedContainer.getDescription(),
                 savedContainer.getMaterialType(),
                 savedContainer.getContainerSize(),
@@ -110,7 +111,7 @@ public class ContainerServImpl implements IContainerService {
         Container updatedContainer = containerRepo.save(existing);
 
         return new ContainerDTOResponse
-                (updatedContainer.getDescription(), updatedContainer.getMaterialType(),
+                (updatedContainer.getId(),updatedContainer.getDescription(), updatedContainer.getMaterialType(),
                 updatedContainer.getContainerSize(), updatedContainer.getMaterialWeight());
     }
 
@@ -136,7 +137,7 @@ public class ContainerServImpl implements IContainerService {
                 new IllegalArgumentException("The scrapyard does not exist, please try again"));
 
         return existing.getContainers().stream().map(cont ->
-                new ContainerDTOResponse(cont.getDescription(), cont.getMaterialType(),
+                new ContainerDTOResponse(cont.getId(),cont.getDescription(), cont.getMaterialType(),
                         cont.getContainerSize(), cont.getMaterialWeight())).toList();
     }
 

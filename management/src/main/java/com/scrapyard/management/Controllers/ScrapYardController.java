@@ -1,6 +1,7 @@
 package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.ContainerDTO.ContainerDTORequestUpdate;
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestInsert;
+import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestUpdate;
 import com.scrapyard.management.Services.Impl.ScrapYardServImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,8 +58,6 @@ public class ScrapYardController {
         }
     }
 
-
-
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         return scrapYardServImpl.deleteScrapYard(id);
@@ -75,7 +74,7 @@ public class ScrapYardController {
     }
 }
 
-    @GetMapping("/containers/{yardId}")
+    @GetMapping("/{yardId}/all-containers")
     public ResponseEntity<?> getContainers(@PathVariable Long yardId) {
         try {
             return ResponseEntity.ok(scrapYardServImpl.getContainers(yardId));
@@ -88,7 +87,7 @@ public class ScrapYardController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestBody ScrapYardDTORequestInsert yard) {
+            @RequestBody ScrapYardDTORequestUpdate yard) {
         try {
             return ResponseEntity.ok((scrapYardServImpl.updateScrapYard(yard, id)));
         } catch (IllegalArgumentException e) {

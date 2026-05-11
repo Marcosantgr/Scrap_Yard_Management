@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ScrapYardDTOResponse {
+public class dtoResponseId {
 
-private String companyName;
-private String name;
-private String location;
-private boolean active;
+    private Long id;
+    private String companyName;
+    private String name;
+    private String location;
+    private boolean active;
 
 
 }

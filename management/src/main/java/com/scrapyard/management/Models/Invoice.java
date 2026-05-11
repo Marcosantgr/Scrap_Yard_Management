@@ -1,4 +1,5 @@
 package com.scrapyard.management.Models;
+import com.scrapyard.management.Models.Enums.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,5 +53,16 @@ public class Invoice {
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    //Invoice Status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvoiceStatus status = InvoiceStatus.ACTIVE;
+
+    private LocalDateTime cancelledAt;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "manager_id", nullable = false)
+    private ManagerSY manager;
 
 }
