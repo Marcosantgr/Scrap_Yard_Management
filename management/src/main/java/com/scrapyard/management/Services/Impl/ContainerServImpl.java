@@ -167,4 +167,12 @@ public class ContainerServImpl implements IContainerService {
         return getContainerById(id).getMaterialWeight();
     }
 
+
+
+
+
+
+
+
+
 }

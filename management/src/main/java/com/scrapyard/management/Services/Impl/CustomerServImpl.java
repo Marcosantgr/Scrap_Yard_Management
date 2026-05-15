@@ -1,11 +1,15 @@
 package com.scrapyard.management.Services.Impl;
 import com.scrapyard.management.DTO.Request.CustomerDTO.CustomerDTOInsert;
-import com.scrapyard.management.DTO.Response.CompanyDTO.CompanyDTOResponse;
 import com.scrapyard.management.DTO.Response.CustomerDTO.CustomerDTOResponse;
+import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse;
+import com.scrapyard.management.DTO.Response.InvoiceDTO.InvoiceDTOResponse1;
+import com.scrapyard.management.DTO.Response.InvoiceDetailDTO.InvoiceDetailDTOResponse;
+import com.scrapyard.management.Mapper.mapDetail;
 import com.scrapyard.management.Models.Company;
 import com.scrapyard.management.Models.Customer;
-import com.scrapyard.management.Models.Enums.CustomerType;
+import com.scrapyard.management.Models.Enums.InvoiceStatus;
 import com.scrapyard.management.Models.Invoice;
+import com.scrapyard.management.Models.InvoiceDetail;
 import com.scrapyard.management.Repository.CompanyRepo;
 import com.scrapyard.management.Repository.CustomerRepo;
 import com.scrapyard.management.Repository.InvoiceRepo;
@@ -13,8 +17,9 @@ import com.scrapyard.management.Services.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 
 @Service
@@ -29,11 +34,14 @@ public class CustomerServImpl implements ICustomerService {
     @Autowired
     private final InvoiceRepo invoiceRepo;
 
+    private final mapDetail mapDetail;
 
-    public CustomerServImpl(CustomerRepo customerRepo, CompanyRepo companyRepo, InvoiceRepo invoiceRepo) {
+
+    public CustomerServImpl(CustomerRepo customerRepo, CompanyRepo companyRepo, InvoiceRepo invoiceRepo, mapDetail mapDetail) {
         this.customerRepo = customerRepo;
         this.companyRepo = companyRepo;
         this.invoiceRepo = invoiceRepo;
+        this.mapDetail = mapDetail;
     }
 
 
@@ -170,20 +178,46 @@ public class CustomerServImpl implements ICustomerService {
     }
 
     @Override
-    public List<Invoice> getInvoicesByCustomer(Long customerId) {
+    public List<InvoiceDTOResponse1> getInvoicesByCustomer(Long customerId) {
 
         if (customerId == null) {
             throw new IllegalArgumentException("Customer ID cannot be null");
         }
+
         if (!customerRepo.existsById(customerId)) {
             throw new IllegalArgumentException("Customer not found");
         }
+
         List<Invoice> invoices = invoiceRepo.findByCustomerId(customerId);
 
         if (invoices.isEmpty()) {
-            throw new IllegalArgumentException("Customer exists but has no invoices");
+            throw new IllegalArgumentException("No invoices are registered with this customer");
         }
-        return invoices;
+        List<InvoiceDTOResponse1> activeInvoices = invoices.stream()
+
+                // IGNORA CANCELADAS
+                .filter(invoice -> invoice.getStatus() != InvoiceStatus.CANCELLED)
+
+                .map(invoice -> new InvoiceDTOResponse1(
+                        invoice.getId(),
+                        invoice.getCustomer().getName(),
+                        invoice.getCustomer().getTypeCustomer(),
+                        invoice.getScrapYard().getName(),
+                        invoice.getScrapYard().getId(),
+                        invoice.getCreatedAt(),
+                        invoice.getTotalPaid(),
+                        invoice.getDiscount(),
+                        invoice.getStatus(),
+                        invoice.getCancelledAt()
+                ))
+                .toList();
+        if (activeInvoices.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "All invoices for this customer are cancelled"
+            );
+        }
+
+        return activeInvoices;
     }
 
 
