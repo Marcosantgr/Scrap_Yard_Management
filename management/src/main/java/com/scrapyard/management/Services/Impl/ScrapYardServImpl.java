@@ -60,16 +60,18 @@ public class ScrapYardServImpl implements IScrapYardService {
 
 
     @Override
-    public ScrapYardDTOResponse getScrapYardByName(String name) {
+    public List<ScrapYardDTOResponse> getScrapYardByName(String name) {
 
-        if (!scrapYardRepo.existsByname(name)) {
-            throw new IllegalArgumentException("No yard name : " + " " + name + " " + " " + "found");
-        }
+        if(name==null || name.isEmpty()) throw new
+                IllegalArgumentException("ScrapYard name cannot be empty or null");
 
-        Optional<ScrapYard> found= scrapYardRepo.findByname(name);
+        List<ScrapYard> found= scrapYardRepo.findByNameContainingIgnoreCase(name);
 
-        return new ScrapYardDTOResponse(found.get().getCompany().getName(),found.get().getName(),
-                found.get().getLocation(),found.get().isActive());
+        if (found.isEmpty()) throw new IllegalArgumentException("There are no registered ScrapYards");
+
+        return found.stream().map(yard -> new ScrapYardDTOResponse(yard.getCompany().getName(),
+                yard.getName(), yard.getLocation(), yard.isActive())).toList();
+
     }
 
 

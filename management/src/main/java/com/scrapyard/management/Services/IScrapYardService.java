@@ -15,7 +15,7 @@ public interface IScrapYardService {
     List<dtoResponseId> getAllScrapYard();
     ScrapYardDTOResponse getScrapYardById(Long id);
     ScrapYardDTOResponse saveScrapYard(ScrapYardDTORequestInsert scrapYard);
-    ScrapYardDTOResponse getScrapYardByName(String name);
+    List<ScrapYardDTOResponse> getScrapYardByName(String name);
     String deleteScrapYard(Long id);
     List<ScrapYardDTOResponse> getAllYardByCompany(Long companyID);
     ScrapYardDTOResponse updateScrapYard(ScrapYardDTORequestUpdate yard, Long id);
