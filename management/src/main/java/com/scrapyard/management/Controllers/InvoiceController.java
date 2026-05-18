@@ -2,6 +2,7 @@ package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
 import com.scrapyard.management.DTO.Request.InvoiceDTO.InvoiceDTORequestInsert;
 import com.scrapyard.management.Services.Impl.InvoiceServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +66,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveInvoice(@RequestBody InvoiceDTORequestInsert invoiceDto) {
+    public ResponseEntity<?> saveInvoice( @Valid @RequestBody InvoiceDTORequestInsert invoiceDto) {
         try {
             return ResponseEntity.ok(invoiceServices.saveInvoice(invoiceDto));
         } catch (IllegalArgumentException e) {

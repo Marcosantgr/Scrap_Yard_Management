@@ -3,6 +3,7 @@ import com.scrapyard.management.DTO.Request.ContainerDTO.ContainerDTORequestUpda
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestInsert;
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDTORequestUpdate;
 import com.scrapyard.management.Services.Impl.ScrapYardServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class ScrapYardController {
     public ScrapYardController(ScrapYardServImpl scrapYardServImpl) {this.scrapYardServImpl = scrapYardServImpl;}
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveScrapYard(@RequestBody ScrapYardDTORequestInsert scrapYard ) {
+    public ResponseEntity<?> saveScrapYard(@Valid @RequestBody ScrapYardDTORequestInsert scrapYard ) {
         try {
             return ResponseEntity.ok(scrapYardServImpl.saveScrapYard(scrapYard));
         } catch (IllegalArgumentException e) {
@@ -87,7 +88,7 @@ public class ScrapYardController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestBody ScrapYardDTORequestUpdate yard) {
+            @Valid @RequestBody ScrapYardDTORequestUpdate yard) {
         try {
             return ResponseEntity.ok((scrapYardServImpl.updateScrapYard(yard, id)));
         } catch (IllegalArgumentException e) {

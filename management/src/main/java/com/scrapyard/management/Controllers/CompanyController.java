@@ -1,6 +1,7 @@
 package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
 import com.scrapyard.management.Services.Impl.CompanyServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class CompanyController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveCompany(@RequestBody CompanyDTORequestInsert company) {
+    public ResponseEntity<?> saveCompany( @Valid @RequestBody CompanyDTORequestInsert company) {
         try {
         return ResponseEntity.ok(companyServices.saveCompany(company));
         } catch (IllegalArgumentException e) {

@@ -2,6 +2,7 @@ package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.CompanyDTORequest.CompanyDTORequestInsert;
 import com.scrapyard.management.DTO.Request.CustomerDTO.CustomerDTOInsert;
 import com.scrapyard.management.Services.Impl.CustomerServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class CustomerController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveCustomer(@RequestBody CustomerDTOInsert customerDTOInsert) {
+    public ResponseEntity<?> saveCustomer(@Valid @RequestBody CustomerDTOInsert customerDTOInsert) {
         try {
             return ResponseEntity.ok(customerServices.saveCustomer(customerDTOInsert));
         } catch (IllegalArgumentException e) {
@@ -67,7 +68,7 @@ public class CustomerController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateCustomer(
             @PathVariable Long id,
-            @RequestBody CustomerDTOInsert customerInsert) {
+            @Valid @RequestBody CustomerDTOInsert customerInsert) {
         try {
             return ResponseEntity.ok(customerServices.updateCustomer(customerInsert, id));
         } catch (IllegalArgumentException e) {

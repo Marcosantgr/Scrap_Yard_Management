@@ -1,8 +1,8 @@
 package com.scrapyard.management.DTO.Request.CustomerDTO;
 import com.scrapyard.management.Models.Enums.CustomerType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,17 +12,20 @@ import lombok.NoArgsConstructor;
 @Data
 public class CustomerDTOInsert {
 
-    @NotBlank
-    @Size(max = 150)
+    @NotBlank(message = "name is required")
+    @Size(min = 2, max = 100, message = "name must be between 2 and 100 characters")
     private String name;
 
-    @NotNull
+    @Size(max = 15)
+    @NotBlank(message = "Personal ID is required")
     private String personalId;
 
-    @NotNull
+    @NotNull(message = "Type is required")
+    @Enumerated(EnumType.STRING)
     private CustomerType typeCustomer;
 
-    @NotNull
+    @NotNull(message = "CompanyId is required")
+    @Positive(message = "CompanyId must be a positive number")
     private Long companyId;
 
 }

@@ -5,6 +5,7 @@ import com.scrapyard.management.DTO.Request.ContainerDTO.ContainerDTORequestUpda
 import com.scrapyard.management.DTO.Request.ScrapYardDTO.ScrapYardDToGetContainers;
 import com.scrapyard.management.Models.Enums.MaterialType;
 import com.scrapyard.management.Services.Impl.ContainerServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +58,7 @@ public class ContainerController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveContainer(@RequestBody ContainerDTORequest container) {
+    public ResponseEntity<?> saveContainer(@Valid @RequestBody ContainerDTORequest container) {
         try {
             return ResponseEntity.ok(containerServices.saveContainer(container));
         } catch (IllegalArgumentException e) {
@@ -70,7 +71,7 @@ public class ContainerController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestBody ContainerDTORequestUpdate container) {
+           @Valid @RequestBody ContainerDTORequestUpdate container) {
         try {
             return ResponseEntity.ok(containerServices.updateContainer(container, id));
         } catch (IllegalArgumentException e) {
@@ -112,7 +113,7 @@ public class ContainerController {
     @GetMapping("/weight/{id}")
     public ResponseEntity<?> getMaterialWeight(
             @PathVariable Long id,
-            @RequestBody ContainerDTORequest container) {
+           @Valid @RequestBody ContainerDTORequest container) {
         try {
             return ResponseEntity.ok(containerServices.getMaterialWeight(container, id));
         } catch (IllegalArgumentException e) {

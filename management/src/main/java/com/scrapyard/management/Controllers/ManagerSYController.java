@@ -1,6 +1,7 @@
 package com.scrapyard.management.Controllers;
 import com.scrapyard.management.DTO.Request.ManagerSYDTO.ManagerSYDTORequestInsert;
 import com.scrapyard.management.Services.Impl.ManagerSYServImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class ManagerSYController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveManager(@RequestBody ManagerSYDTORequestInsert managerDTOInsert) {
+    public ResponseEntity<?> saveManager( @Valid @RequestBody ManagerSYDTORequestInsert managerDTOInsert) {
         try {
             return ResponseEntity.ok(managerSYServ.saveManagerSY(managerDTOInsert));
         } catch (IllegalArgumentException e) {
