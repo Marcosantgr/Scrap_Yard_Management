@@ -65,7 +65,7 @@ public class ManagerSYController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateManager(
             @PathVariable Long id,
-            @RequestBody ManagerSYDTORequestInsert manager) {
+           @Valid @RequestBody ManagerSYDTORequestInsert manager) {
         try {
             return ResponseEntity.ok(managerSYServ.updateManager(manager, id));
         } catch (IllegalArgumentException e) {
